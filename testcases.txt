@@ -1,0 +1,36 @@
+User Authentication
+
+Successful Login
+Input: Correct email and password
+Expected Output: User logs in, JWT token is returned
+
+Login with Non-existent Email
+Input: Wrong email, correct password
+Expected Output: Error: "User not found"
+
+Task Management
+ Create a Valid Task
+ Input: Title, description, priority
+ Expected Output: Task is created with a unique ID
+
+Create a Task with Invalid Priority
+ Input: Priority set to "Urgent" instead of High, Medium, or Low
+ Expected Output: Error: "Priority must be High, Medium, or Low"
+
+Delete a Task
+Input: Task ID
+Expected Output: Task is deleted successfully
+
+Update a Task
+Input: Change task details (e.g., change priority from Medium to High)
+Expected Output: Task updates successfully
+
+Edge Cases
+
+Create a Task with a Very Long Title
+Input: Title with 500 characters
+Expected Output: Error: "Title must be less than 100 characters"
+
+Update a Non-existent Task
+Input: Task ID that does not exist
+Expected Output: Error: "Task not found"
