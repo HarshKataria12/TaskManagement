@@ -70,7 +70,7 @@ Ensure you have the following installed on your system:
    ```
 3. Start the backend server:
    ```bash
-   npm run dev
+   npm start
    ```
    The backend will be available at [http://localhost:8800](http://localhost:8800).
 
