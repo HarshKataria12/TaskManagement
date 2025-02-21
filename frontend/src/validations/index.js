@@ -25,7 +25,7 @@ export const validate = (group, name, value) => {
       }
       case "password": {
         if (!value) return "This field is required"; // Password is required
-        if (value.length < 4) return "Password should be at least 4 chars long"; // Check password length
+        if (value.length < 6) return "Password should be at least 4 chars long"; // Check password length
         return null; // If no error, return null
       }
       default: return null; // If no validation rules for this field, return null
@@ -48,23 +48,31 @@ export const validate = (group, name, value) => {
     }
   }
 
-  // Validation for the "task" form
-  else if (group === "task") {
+  if (group === "task") {
+    const today = new Date().toISOString().split("T")[0]; // Format as YYYY-MM-DD
+
     switch (name) {
-      case "description": {
+      case "title":
+        if (!value) return "This field is required"; // Title is required
+        if (value.length > 25) return "Max. limit is 25 characters."; // Title cannot exceed 25 characters
+        return null; // No error
+
+      case "description":
         if (!value) return "This field is required"; // Description is required
         if (value.length > 100) return "Max. limit is 100 characters."; // Description cannot exceed 100 characters
-        return null; // If no error, return null
-      }
-      default: return null; // If no validation rules for this field, return null
+        return null; // No error
+
+      case "dueDate":
+        if (!value) return "Enter a valid date"; // Due date is required
+        if (value < today) return "Due date cannot be in the past"; // Due date must be today or later
+        return null; // No error
+
+      default:
+        return null; // If no validation rules for this field, return null
     }
   }
-
-  // Return null if no validation group matches
-  else {
-    return null;
-  }
-}
+  return null; // Return null if no validation group matches
+};
 
 // Function to validate multiple fields at once
 const validateManyFields = (group, list) => {

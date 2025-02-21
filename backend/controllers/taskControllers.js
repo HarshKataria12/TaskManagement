@@ -84,41 +84,48 @@ exports.postTask = async (req, res, next) => {
   }
 };
 
-// Controller for updating a task's status
 exports.putTask = async (req, res, next) => {
   try {
-    // Destructure the new status from the request body
-    const { status } = req.body;
+    // Destructure relevant fields from the request body
+    const { title, description, priority, status, dueDate } = req.body;
     
-    // Ensure the status is provided
-    if (!status) {
-      throw new BadRequestError("Status is required"); // Throw an error if status is missing
-    }
 
-    // Validate the task ID format in the request parameters
+
+    // Validate task ID format
     if (!validateObjectId(req.params.taskId)) {
-      throw new BadRequestError("Invalid task ID format"); // Throw an error if the ID is invalid
+      throw new BadRequestError("Invalid task ID format");
     }
 
-    // Find the task by ID and update its status
+    // Prepare the update object
+    const updatedFields = {
+      user: req.user.id,
+      title: title.trim(),
+      description: description.trim(),
+      priority,
+      status,
+      dueDate,
+    };
+    console.log("Due Date in State:", dueDate);
+
+    // Find and update the task
     const task = await Task.findOneAndUpdate(
       { _id: req.params.taskId, user: req.user.id },
-      { status },
-      { new: true, runValidators: true } // Return the updated task and validate the new status
+      updatedFields,
+      { new: true, runValidators: true }
     );
 
     if (!task) {
-      throw new NotFoundError("Task not found or unauthorized"); // Throw an error if the task is not found or doesn't belong to the user
+      throw new NotFoundError("Task not found or unauthorized");
     }
 
-    // Respond with the updated task, a success status, and a success message
-    res.status(200).json({ 
-      task, 
-      status: true, 
-      msg: "Task updated successfully" 
+    // Respond with the updated task
+    res.status(200).json({
+      task,
+      status: true,
+      msg: "Task updated successfully",
     });
   } catch (err) {
-    next(err); // Pass any errors to the error-handling middleware
+    next(err);
   }
 };
 

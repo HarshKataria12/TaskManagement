@@ -1,30 +1,44 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Textarea, Input } from '../components/utils/Input'; // Input components for task fields
-import useFetch from '../hooks/useFetch'; // Custom hook to handle API requests
-import MainLayout from '../layouts/MainLayout'; // Layout wrapper to ensure consistent styling
-import validateManyFields from '../validations'; // Function to validate form data
+import { Textarea, Input } from '../components/utils/Input';
+import useFetch from '../hooks/useFetch';
+import MainLayout from '../layouts/MainLayout';
+import validateManyFields from '../validations';
 
 const Task = () => {
-  const { taskId } = useParams(); // Get taskId from URL params (used for editing)
-  const mode = taskId ? 'update' : 'add'; // Set mode based on taskId, either "add" or "update"
-  
-  // Initial state for form fields
+  const { taskId } = useParams();
+  const mode = taskId ? 'update' : 'add';
+
+  // Get today's date in "YYYY-MM-DD" format
+  const today = new Date().toISOString().split('T')[0];
+
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     priority: 'medium',
     status: 'todo',
-    createdAt: new Date().toISOString().split('T')[0],
+    createdAt: today,
     dueDate: '',
   });
-  const [formErrors, setFormErrors] = useState({}); // Store validation errors
-  const [fetchData] = useFetch(); // Fetch data hook to interact with API
-  const authState = useSelector((state) => state.authReducer); // Get authentication state from Redux
-  const navigate = useNavigate(); // Navigation function to redirect after form submission
 
-  // UseEffect to load existing task data for editing (only in "update" mode)
+  const [formErrors, setFormErrors] = useState({});
+  const [fetchData] = useFetch();
+  const authState = useSelector((state) => state.authReducer);
+  const navigate = useNavigate();
+
+  const formatDate = (date, format = "input") => {
+    if (!date) return "";
+  
+    const parsedDate = new Date(date);
+    const year = parsedDate.getFullYear();
+    const month = String(parsedDate.getMonth() + 1).padStart(2, "0");
+    const day = String(parsedDate.getDate()).padStart(2, "0");
+  
+    return format === "input" ? `${year}-${month}-${day}` : `${day}-${month}-${year}`;
+  };
+  
+  
   useEffect(() => {
     if (mode === 'update') {
       const config = {
@@ -32,38 +46,35 @@ const Task = () => {
         method: 'get',
         headers: { Authorization: authState.token },
       };
+      
+
       fetchData(config).then((data) => {
-        // Populate form with existing task data
         setFormData({
           title: data.task.title,
           description: data.task.description,
           priority: data.task.priority || 'medium',
           status: data.task.status || 'todo',
-          createdAt: data.task.createdAt || new Date().toISOString().split('T')[0],
+          createdAt: data.task.createdAt || today,
           dueDate: data.task.dueDate || '',
         });
       });
     }
-  }, [mode, taskId, authState, fetchData]);
+  }, [mode, taskId, authState, fetchData, today]);
 
-  // Handle form field changes and update state accordingly
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  // Handle form submission, including validation and API request
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    // Validate the form data before submitting
+
     const errors = validateManyFields('task', formData);
     if (errors.length > 0) {
       setFormErrors(errors.reduce((acc, err) => ({ ...acc, [err.field]: err.err }), {}));
       return;
     }
 
-    // Configure API request for adding or updating the task
     const config = {
       url: mode === 'add' ? '/tasks' : `/tasks/${taskId}`,
       method: mode === 'add' ? 'post' : 'put',
@@ -71,7 +82,6 @@ const Task = () => {
       headers: { Authorization: authState.token },
     };
 
-    // Send the request and navigate back to the task list on success
     fetchData(config).then(() => navigate('/'));
   };
 
@@ -82,8 +92,11 @@ const Task = () => {
         <form onSubmit={handleSubmit}>
           {/* Task Title Field */}
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Task Title</label>
+            <label htmlFor="title" className="block text-sm font-medium mb-1">
+              Task Title <span className="text-red-500">*</span>
+            </label>
             <Input
+              id="title"
               type="text"
               name="title"
               value={formData.title}
@@ -97,8 +110,11 @@ const Task = () => {
 
           {/* Task Description Field */}
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Description</label>
+            <label htmlFor="description" className="block text-sm font-medium mb-1">
+              Description <span className="text-red-500">*</span>
+            </label>
             <Textarea
+              id="description"
               name="description"
               value={formData.description}
               onChange={handleChange}
@@ -111,8 +127,9 @@ const Task = () => {
 
           {/* Priority Selection Field */}
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Priority</label>
+            <label htmlFor="priority" className="block text-sm font-medium mb-1">Priority</label>
             <select
+              id="priority"
               name="priority"
               value={formData.priority}
               onChange={handleChange}
@@ -126,8 +143,9 @@ const Task = () => {
 
           {/* Status Selection Field */}
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Status</label>
+            <label htmlFor="status" className="block text-sm font-medium mb-1">Status</label>
             <select
+              id="status"
               name="status"
               value={formData.status}
               onChange={handleChange}
@@ -141,13 +159,16 @@ const Task = () => {
 
           {/* Due Date Field */}
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Due Date</label>
+            <label htmlFor="dueDate" className="block text-sm font-medium mb-1">Due Date</label>
             <Input
-              type="date"
-              name="dueDate"
-              value={formData.dueDate}
-              onChange={handleChange}
-            />
+  id="dueDate"
+  type="date"
+  name="dueDate"
+  value={formData.dueDate ? formatDate(formData.dueDate, "input") : ""}
+  onChange={handleChange}
+  min={today}
+/>
+
             {formErrors.dueDate && (
               <p className="text-red-500 text-sm mt-1">{formErrors.dueDate}</p>
             )}
