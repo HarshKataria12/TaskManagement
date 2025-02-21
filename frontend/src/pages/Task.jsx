@@ -161,13 +161,13 @@ const Task = () => {
           <div className="mb-4">
             <label htmlFor="dueDate" className="block text-sm font-medium mb-1">Due Date</label>
             <Input
-  id="dueDate"
-  type="date"
-  name="dueDate"
-  value={formData.dueDate ? formatDate(formData.dueDate, "input") : ""}
-  onChange={handleChange}
-  min={today}
-/>
+              id="dueDate"
+              type="date"
+              name="dueDate"
+              value={formData.dueDate ? formatDate(formData.dueDate, "input") : ""}
+              onChange={handleChange}
+              min={today}
+            />
 
             {formErrors.dueDate && (
               <p className="text-red-500 text-sm mt-1">{formErrors.dueDate}</p>
