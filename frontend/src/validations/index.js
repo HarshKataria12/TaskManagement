@@ -25,7 +25,7 @@ export const validate = (group, name, value) => {
       }
       case "password": {
         if (!value) return "This field is required"; // Password is required
-        if (value.length < 6) return "Password should be at least 4 chars long"; // Check password length
+        if (value.length < 6) return "Password should be at least 6 chars long"; // Check password length
         return null; // If no error, return null
       }
       default: return null; // If no validation rules for this field, return null
