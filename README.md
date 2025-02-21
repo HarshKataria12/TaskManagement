@@ -74,6 +74,16 @@ Ensure you have the following installed on your system:
    ```
    The backend will be available at [http://localhost:8800](http://localhost:8800).
 
+4. Create a .env file in the backend directory
+
+5.Add the following environment variables inside .env (update values as needed):
+```bash
+PORT=8800
+MONGO_URI=mongodb+srv://<your-username>:<your-password>@cluster.mongodb.net/<your-database>?retryWrites=true&w=majority
+JWT_SECRET=your-secret-key
+   ```
+
+
 
 ## Usage
 
